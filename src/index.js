@@ -4,13 +4,16 @@ import './index.css';
 import { UserSignupPage } from './pages/UserSignupPage';
 import reportWebVitals from './reportWebVitals';
 import * as apiCalls from './api/apiCalls';
+import { LoginPage } from './pages/LoginPage';
 
 const actions = {
-  postSignup: apiCalls.signup
+  postSignup: apiCalls.signup,
+  postLogin: apiCalls.login
 }
 
 ReactDOM.render(
-  <UserSignupPage actions={actions} />,
+  <LoginPage actions={actions} />,
+  //<UserSignupPage actions={actions} />,
   document.getElementById('root')
 );
 
