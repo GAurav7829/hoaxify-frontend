@@ -19,5 +19,12 @@ export const loginHandler = (credentials) => {
                 return response;
             });
     }
+}
 
+export const signupHandler = (user) => {
+    return function (dispatch) {
+        return apiCalls.signup(user).then(response => {
+            return dispatch(loginHandler(user));
+        })
+    }
 }
