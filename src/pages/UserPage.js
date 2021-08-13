@@ -1,12 +1,16 @@
 import React from 'react';
 import * as apiCalls from '../api/apiCalls';
 import ProfileCard from '../components/ProfileCard';
+import { connect } from 'react-redux';
 
 class UserPage extends React.Component {
     state = {
         user: undefined,
         userNotFound: false,
-        isLoadingUser: false
+        isLoadingUser: false,
+        isEditMode: false,
+        originalDisplayName: undefined,
+        pendingUpdateCall: false
     }
     componentDidUpdate(prevProps) {
         if (prevProps.match.params.username !== this.props.match.params.username) {
@@ -28,6 +32,42 @@ class UserPage extends React.Component {
             this.setState({ userNotFound: true });
         });
     }
+    onClickEdit = () => {
+        this.setState({ isEditMode: true });
+    }
+    onClickCancel = () => {
+        const user = { ...this.state.user };
+        if (this.state.originalDisplayName !== undefined) {
+            user.displayName = this.state.originalDisplayName;
+        }
+        this.setState({ user, originalDisplayName: undefined, isEditMode: false });
+    }
+    onClickSave = () => {
+        const userId = this.props.loggedInUser.id;
+        const userUpdate = {
+            displayName: this.state.user.displayName
+        }
+        this.setState({ pendingUpdateCall: true });
+        apiCalls.updateUser(userId, userUpdate)
+            .then(response => {
+                this.setState({
+                    isEditMode: false,
+                    originalDisplayName: undefined,
+                    pendingUpdateCall: false
+                });
+            }).catch(error => {
+                this.setState({ pendingUpdateCall: false });
+            });
+    }
+    onChangeDisplayName = (event) => {
+        const user = { ...this.state.user };
+        let originalDisplayName = this.state.originalDisplayName;
+        if (originalDisplayName === undefined) {
+            originalDisplayName = user.displayName;
+        }
+        user.displayName = event.target.value;
+        this.setState({ user, originalDisplayName });
+    }
     render() {
         let pageContent;
 
@@ -43,8 +83,19 @@ class UserPage extends React.Component {
                 <h5>User Not Found</h5>
             </div>
         } else {
+            const isEditable = this.props.loggedInUser.username === this.props.match.params.username;
             pageContent = (<div>
-                {this.state.user && <ProfileCard user={this.state.user} />}
+                {this.state.user &&
+                    <ProfileCard
+                        user={this.state.user}
+                        isEditable={isEditable}
+                        isEditMode={this.state.isEditMode}
+                        onClickEdit={this.onClickEdit}
+                        onClickCancel={this.onClickCancel}
+                        onClickSave={this.onClickSave}
+                        onChangeDisplayName={this.onChangeDisplayName}
+                        pendingUpdateCall={this.state.pendingUpdateCall}
+                    />}
             </div>);
         }
         return pageContent;
@@ -57,4 +108,10 @@ UserPage.defaultProps = {
     }
 }
 
-export default UserPage;
+const mapStateToProps = (state) => {
+    return {
+        loggedInUser: state
+    }
+}
+
+export default connect(mapStateToProps)(UserPage);
