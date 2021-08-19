@@ -17,6 +17,7 @@ const ProfileCard = (props) => {
                     width="200"
                     height="200"
                     image={image}
+                    src={props.loadedImage}
                 />
             </div>
             <div className="card-body text-center">
@@ -26,15 +27,16 @@ const ProfileCard = (props) => {
                         label={`Change Display Name for ${username}`}
                         onChange={props.onChangeDisplayName}
                     />
+                    <input className='form-control-file mt-2' type='file' onChange={props.onFileSelect} />
                 </div>}
                 {showEditButton && <button className="btn btn-outline-success" onClick={props.onClickEdit}>
-                    <i class="fas fa-user-edit"></i>Edit
+                    <i className="fas fa-user-edit"></i>Edit
                 </button>}
                 {props.isEditMode && (<div>
                     <ButtonWithProgress
                         className="btn btn-primary"
                         onClick={props.onClickSave}
-                        text={<span><i class="fas fa-save mr-2"></i>Save</span>}
+                        text={<span><i className="fas fa-save mr-2"></i>Save</span>}
                         pendingApiCall={props.pendingUpdateCall}
                         disabled={props.pendingUpdateCall}
                     />
@@ -43,7 +45,7 @@ const ProfileCard = (props) => {
                         onClick={props.onClickCancel}
                         disabled={props.pendingUpdateCall}
                     >
-                        <i class="fas fa-window-close mr-2"></i>Cancel
+                        <i className="fas fa-window-close mr-2"></i>Cancel
                     </button>
                 </div>)}
             </div>
