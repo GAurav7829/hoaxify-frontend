@@ -26,8 +26,17 @@ const ProfileCard = (props) => {
                     <Input value={displayName}
                         label={`Change Display Name for ${username}`}
                         onChange={props.onChangeDisplayName}
+                        hasError={props.errors.displayName && true}
+                        error={props.errors.displayName}
                     />
-                    <input className='form-control-file mt-2' type='file' onChange={props.onFileSelect} />
+                    <div className='mt-2'>
+                        <Input
+                            type='file'
+                            onChange={props.onFileSelect}
+                            hasError={props.errors.image && true}
+                            error={props.errors.image}
+                        />
+                    </div>
                 </div>}
                 {showEditButton && <button className="btn btn-outline-success" onClick={props.onClickEdit}>
                     <i className="fas fa-user-edit"></i>Edit
@@ -51,6 +60,10 @@ const ProfileCard = (props) => {
             </div>
         </div>
     )
+}
+
+ProfileCard.defaultProps = {
+    errors: {}
 }
 
 export default ProfileCard;

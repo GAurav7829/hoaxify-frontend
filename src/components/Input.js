@@ -2,6 +2,11 @@ import React from 'react';
 
 const Input = (props) => {
     let inputClass = 'form-control';
+
+    if (props.type === 'file') {
+        inputClass += '-file';
+    }
+
     if (props.hasError !== undefined) {
         inputClass += props.hasError ? ' is-invalid' : ' is-valid';
     }

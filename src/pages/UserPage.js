@@ -11,7 +11,8 @@ class UserPage extends React.Component {
         isEditMode: false,
         originalDisplayName: undefined,
         pendingUpdateCall: false,
-        image: undefined
+        image: undefined,
+        errors: {}
     }
     componentDidUpdate(prevProps) {
         if (prevProps.match.params.username !== this.props.match.params.username) {
@@ -41,7 +42,13 @@ class UserPage extends React.Component {
         if (this.state.originalDisplayName !== undefined) {
             user.displayName = this.state.originalDisplayName;
         }
-        this.setState({ user, originalDisplayName: undefined, isEditMode: false, image: undefined });
+        this.setState({
+            user,
+            originalDisplayName: undefined,
+            isEditMode: false,
+            image: undefined,
+            errors: {}
+        });
     }
     onClickSave = () => {
         const userId = this.props.loggedInUser.id;
@@ -62,7 +69,11 @@ class UserPage extends React.Component {
                     image: undefined
                 });
             }).catch(error => {
-                this.setState({ pendingUpdateCall: false });
+                let errors = {}
+                if (error.response.data.validationErrors) {
+                    errors = error.response.data.validationErrors;
+                }
+                this.setState({ pendingUpdateCall: false, errors });
             });
     }
     onChangeDisplayName = (event) => {
@@ -72,17 +83,22 @@ class UserPage extends React.Component {
             originalDisplayName = user.displayName;
         }
         user.displayName = event.target.value;
-        this.setState({ user, originalDisplayName });
+        const errors = { ...this.state.errors };
+        errors.displayName = undefined;
+        this.setState({ user, originalDisplayName, errors });
     }
     onFileSelect = (event) => {
         if (event.target.files.length === 0) {
             return;
         }
+        const errors = { ...this.state.errors };
+        errors.image = undefined;
         const file = event.target.files[0];
         let reader = new FileReader();
         reader.onloadend = () => {
             this.setState({
-                image: reader.result
+                image: reader.result,
+                errors
             });
         }
         reader.readAsDataURL(file);
@@ -116,6 +132,7 @@ class UserPage extends React.Component {
                         pendingUpdateCall={this.state.pendingUpdateCall}
                         loadedImage={this.state.image}
                         onFileSelect={this.onFileSelect}
+                        errors={this.state.errors}
                     />}
             </div>);
         }
