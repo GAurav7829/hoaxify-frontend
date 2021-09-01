@@ -34,6 +34,7 @@ class TopBar extends React.Component {
             type: 'logout-success'
         }
         this.props.dispatch(action);
+
     }
 
     onClickMyProfile = () => {
