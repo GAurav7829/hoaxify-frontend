@@ -21,6 +21,8 @@ class HoaxFeed extends Component {
                 this.setState({ page: response.data, isLoadingHoaxes: false }, () => {
                     this.counter = setInterval(this.checkCount, 3000);
                 });
+            }).catch(error => {
+                this.setState({ isLoadingHoaxes: false })
             });
     }
     componentWillUnmount() {
