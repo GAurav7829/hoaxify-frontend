@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import ProfileImageWithDefault from './ProfileImageWithDefault';
 import { format } from 'timeago.js';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 class HoaxView extends Component {
     render() {
-        const { hoax } = this.props;
+        const { hoax, onClickDelete } = this.props;
         const { user, date } = hoax;
         const { username, displayName, image } = user;
         const relativeDate = format(date);
         const attachmentImageVisible = hoax.attachment && hoax.attachment.fileType.startsWith('image');
+        const owenedByLoggedInUser = user.id === this.props.loggedInUser.id;
         return (
             <div className='card p-1'>
                 <div className='d-flex'>
@@ -26,6 +28,13 @@ class HoaxView extends Component {
                         <span className='text-black-50'> - </span>
                         <span className='text-black-50'>{relativeDate}</span>
                     </div>
+                    {
+                        owenedByLoggedInUser &&
+                        <button className='btn btn-outline-danger btn-sm'
+                            onClick={onClickDelete}>
+                            <i className='far fa-trash-alt'></i>
+                        </button>
+                    }
                 </div>
                 <div className='pl-5'>
                     {hoax.content}
@@ -44,4 +53,10 @@ class HoaxView extends Component {
     }
 }
 
-export default HoaxView
+const mapStateToProps = state => {
+    return {
+        loggedInUser: state
+    }
+}
+
+export default connect(mapStateToProps)(HoaxView);
