@@ -1,86 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { connect } from 'react-redux';
 import * as authActions from '../redux/authActions';
 
-export class LoginPage extends React.Component {
-    state = {
-        username: '',
-        password: '',
-        apiError: undefined,
-        pendingApiCall: false
-    }
-    onChangeUsername = (event) => {
-        const value = event.target.value;
-        this.setState({ username: value, apiError: undefined });
-    }
-    onChangePassword = (event) => {
-        const value = event.target.value;
-        this.setState({ password: value, apiError: undefined });
-    }
-    onClickLogin = () => {
+export const LoginPage = (props) => {
+    // state = {
+    //     username: '',
+    //     password: '',
+    //     apiError: undefined,
+    //     pendingApiCall: false
+    // }
+    // const usernameState = useState('');
+    // const username = usernameState[0];
+    // const setUsername = usernameState[1];
+    //OR
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [apiError, setApiError] = useState();//empty is undefined
+    const [pendingApiCall, setPendingApiCall] = useState(false);
 
+    useEffect(() => {
+        setApiError();
+    }, [username, password]);
+
+    const onClickLogin = () => {
         const body = {
-            username: this.state.username,
-            password: this.state.password
+            username,
+            password
         }
-        this.setState({ pendingApiCall: true })
-        this.props.actions.postLogin(body)
+        setPendingApiCall(true);
+        props.actions.postLogin(body)
             .then(response => {
-                this.setState({ pendingApiCall: false }, () => {
-                    this.props.history.push('/');
-                });
+                setPendingApiCall(false);
+                props.history.push('/');
             })
             .catch(error => {
                 if (error.response) {
-                    this.setState({ apiError: error.response.data.message, pendingApiCall: false });
+                    setPendingApiCall(false);
+                    setApiError(error.response.data.message);
                 }
             });
     }
-    render() {
-        let disableSubmit = false;
-        if (this.state.username === '' || this.state.password === '') {
-            disableSubmit = true;
-        }
-        return (
-            <div className='container'>
-                <h1 className='text-center'>Login</h1>
-                <div className='col-12 mb-3'>
-                    <Input
-                        label='Username'
-                        placeholder='Your Username'
-                        value={this.state.username}
-                        onChange={this.onChangeUsername}
-                    />
-                </div>
-                <div className='col-12 mb-3'>
-                    <Input
-                        label='Password'
-                        placeholder='Your Password'
-                        type='password'
-                        value={this.state.password}
-                        onChange={this.onChangePassword}
-                    />
-                </div>
-                {
-                    this.state.apiError && <div className='col-12 mb-3'>
-                        <div className='alert alert-danger'>
-                            {this.state.apiError}
-                        </div>
-                    </div>
-                }
-                <div className='text-center'>
-                    <ButtonWithProgress
-                        onClick={this.onClickLogin}
-                        disabled={disableSubmit || this.state.pendingApiCall}
-                        text='Login'
-                        pendingApiCall={this.state.pendingApiCall}
-                    />
-                </div>
-            </div>
-        );
+
+    let disableSubmit = false;
+    if (username === '' || password === '') {
+        disableSubmit = true;
     }
+
+    return (
+        <div className='container'>
+            <h1 className='text-center'>Login</h1>
+            <div className='col-12 mb-3'>
+                <Input
+                    label='Username'
+                    placeholder='Your Username'
+                    value={username}
+                    onChange={(event) => {
+                        setUsername(event.target.value);
+                    }}
+                />
+            </div>
+            <div className='col-12 mb-3'>
+                <Input
+                    label='Password'
+                    placeholder='Your Password'
+                    type='password'
+                    value={password}
+                    onChange={event => {
+                        setPassword(event.target.value);
+                    }}
+                />
+            </div>
+            {
+                apiError && <div className='col-12 mb-3'>
+                    <div className='alert alert-danger'>
+                        {apiError}
+                    </div>
+                </div>
+            }
+            <div className='text-center'>
+                <ButtonWithProgress
+                    onClick={onClickLogin}
+                    disabled={disableSubmit || pendingApiCall}
+                    text='Login'
+                    pendingApiCall={pendingApiCall}
+                />
+            </div>
+        </div>
+    );
 }
 
 LoginPage.defaultProps = {
