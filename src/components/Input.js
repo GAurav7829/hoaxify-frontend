@@ -13,6 +13,7 @@ const Input = (props) => {
     return <div>
         {props.label && <label>{props.label}</label>}
         <input
+            name={props.name}
             className={inputClass}
             type={props.type || 'text'}
             placeholder={props.placeholder}
